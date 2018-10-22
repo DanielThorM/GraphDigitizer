@@ -315,7 +315,6 @@ class digitizerGUI(object):
 
 
 
-
 if __name__ == '__main__':
     root = tk.Tk()
     my_gui = digitizerGUI(root)
