@@ -6,6 +6,7 @@ import transparentWindow
 import numpy as np
 
 
+#Now on github
 
 class curve(object):
     def __init__(self):
