@@ -1,8 +1,8 @@
-@@ -0,0 +1,301 @@
+
 import tkinter as tk
 import tkinter.filedialog
 import dill
-import transparentDigitizer
+import transparentWindow
 import numpy as np
 
 
@@ -99,6 +99,19 @@ class digitizerGUI(object):
 
 
 
+        ###################################
+        #LogAxis
+        self.logAxisX = tk.IntVar()
+        self.logAxisY = tk.IntVar()
+        cButton_logX = tk.Checkbutton(
+            mainFrameCenter, text="log axis X", variable=self.logAxisX,
+            onvalue=1, offvalue=0)
+        cButton_logY = tk.Checkbutton(
+            mainFrameCenter, text="log axis Y", variable=self.logAxisY,
+            onvalue=1, offvalue=0)
+        cButton_logX.grid(row=5, column=2, sticky=tk.W + tk.E)
+        cButton_logY.grid(row=6, column=2, sticky=tk.W + tk.E)
+
 
         ############################################################
         #Curve data
@@ -142,38 +155,45 @@ class digitizerGUI(object):
         self.slave.attributes('-alpha', 0.4)
         self.slave.geometry('600x600')
         self.slave.wm_attributes("-topmost", 1)
-        self.transparent_window = transparentDigitizer.draw_on_window(self.slave)
+        self.transparent_window = transparentWindow.draw_on_window(self.slave)
 
     def set_origo(self):
         try:
             self.transparent_window.axes.promt_origo()
         except:
-            self.transparent_window.axes = transparentDigitizer.define_axes(self.transparent_window)
-            self.transparent_window.axes.promt_origo()
+            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
+            self.transparent_window.axes.promt_origo(self.logAxisX.get(), self.logAxisY.get())
+            print (str(self.logAxisX.get()))
 
     def set_x_point(self):
         try:
             self.transparent_window.axes.promt_x_axis()
         except:
-            self.transparent_window.axes = transparentDigitizer.define_axes(self.transparent_window)
+            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
             self.transparent_window.axes.promt_x_axis()
 
     def set_y_point(self):
         try:
             self.transparent_window.axes.promt_y_axis()
         except:
-            self.transparent_window.axes = transparentDigitizer.define_axes(self.transparent_window)
+            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
             self.transparent_window.axes.promt_y_axis()
 
     def set_points(self):
         try:
             self.transparent_window.points.promt_points()
         except:
-            self.transparent_window.points = transparentDigitizer.points(self.transparent_window)
+            self.transparent_window.points = transparentWindow.points(self.transparent_window)
             self.transparent_window.points.promt_points()
 
     def assign_to_curve(self):
         x,y = self.transparent_window.axes.interpolate_data(self.transparent_window.points.point_list)
+        if self.logAxisX == 1:
+            a=1
+        elif self.logAxisY == 1:
+            a=1
+
+
         self.project[self.current_index].set_xy(x,y)
         self.print_data_data()
 
@@ -182,14 +202,14 @@ class digitizerGUI(object):
         try:
             self.transparent_window.points.clear_points()
         except:
-            self.transparent_window.points = transparentDigitizer.points(self.transparent_window)
+            self.transparent_window.points = transparentWindow.points(self.transparent_window)
             self.transparent_window.points.clear_points()
 
     def select_regression_area(self):
         try:
             self.transparent_window.draw_rectangle.calculate_line()
         except:
-            self.transparent_window.draw_rectangle = Digitizer.draw_rectangle(self.transparent_window)
+            self.transparent_window.draw_rectangle = transparentWindow.draw_rectangle(self.transparent_window)
             self.transparent_window.draw_rectangle.calculate_line()
 
     def calculate_slope(self):

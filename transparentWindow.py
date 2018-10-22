@@ -5,6 +5,7 @@ Created on Fri Jun 23 23:12:46 2017
 @author: danieltm
 """
 import tkinter as tk
+import tkinter.simpledialog
 import numpy as np
 import matplotlib.figure as mplfig
 import matplotlib.backends.backend_tkagg as tkagg
@@ -91,16 +92,25 @@ class define_axes:
     def __init__(self, window):
         self.canvas = window.canvas
 
-    def promt_origo(self):
-        self.canvas.bind('<Button-1>', self.set_origo)
-
-    def set_origo(self, event):
-        self.origo_loc = [event.x, event.y]
+    def promt_origo(self, logAxisX, logAxisY):
         try:
-            self.canvas.delete(self.origo_dot)
+            self.canvas.delete('origo_dot')
         except:
             pass
-        self.origo_dot = self.dot(self.origo_loc, 'red')
+        self.canvas.bind('<Button-1>', lambda event: self.on_l_click(event, 'origo'))
+        self.origo_value=[0,0]
+        self.logAxisX=logAxisX
+        self.logAxisY=logAxisY
+
+    # def set_origo(self, event):
+    #     self.origo_loc = [event.x, event.y]
+    #     try:
+    #         self.canvas.delete(self.origo_dot)
+    #     except:
+    #         pass
+    #     self.origo_dot = self.dot(self.origo_loc, 'red')
+
+
         #print[event.x, event.y]
 
     def promt_x_axis(self):
@@ -124,9 +134,18 @@ class define_axes:
         except:
             pass
         setattr(self, attrstring + '_dot', self.dot(getattr(self, attrstring + '_loc'), 'red'))
-        setattr(self, attrstring + '_value',
-                float(tk.simpledialog.askstring('Value', 'enter value of ' + attrstring.split('_')[0] + ' axis point',
-                                               parent=self.canvas)))
+        if attrstring!='origo':
+            setattr(self, attrstring + '_value',
+                    float(tk.simpledialog.askstring('Value', 'enter value of ' + attrstring.split('_')[0] + ' axis point',
+                                                   parent=self.canvas)))
+
+        else:
+            if self.logAxisX == 1:
+                self.origo_value[0] = float(tk.simpledialog.askstring('Value', 'enter X value of origo',
+                                                                      parent=self.canvas))
+            if self.logAxisY == 1:
+                self.origo_value[1] = float(tk.simpledialog.askstring('Value', 'enter Y value of origo',
+                                                                      parent=self.canvas))
         #print([event.x, event.y])
 
     def dot(self, location, color='red'):
@@ -138,19 +157,22 @@ class define_axes:
         origo = np.array(self.origo_loc, dtype=np.float)
         x_axis = np.array(self.x_axis_loc, dtype=np.float)
         y_axis = np.array(self.y_axis_loc, dtype=np.float)
-        x_value = self.x_axis_value
-        y_value = self.y_axis_value
 
-        alpha=(x_axis - origo)/(x_value)#/np.linalg.norm(x_axis - origo))
-        beta=(y_axis - origo)/(y_value)#/np.linalg.norm(y_axis - origo))
+
+        alpha=(x_axis - origo)/(self.x_axis_value)
+        beta=(y_axis - origo)/(self.y_axis_value)
 
         values=np.dot(np.matrix([alpha, beta]).T.I, pix-origo)
         x = values[0,0]
         y = values[0,1]
 
+        if self.logAxisX == 1:
+            decades=int(np.log10(self.x_axis_value)-np.log10(self.origo_value[0]))
+            x=10**(x*decades/ self.x_axis_value)
 
-
-
+        if self.logAxisY == 1:
+            decades = int(np.log10(self.y_axis_value) - np.log10(self.origo_value[1]))
+            y = 10 ** (y * decades / self.y_axis_value)
 
         return [x, y]
 
@@ -236,8 +258,8 @@ class show_plot(tk.Frame):
 
         self.fig = mplfig.Figure(figsize=(4, 4))
         self.subplot = self.fig.add_subplot(111)
-        self.subplot.set_ylabel('Stress')
-        self.subplot.set_xlabel('Strain')
+        self.subplot.set_ylabel('Y')
+        self.subplot.set_xlabel('X')
         self.subplot.plot(self.data[1], self.data[0])
         self.canvas = tkagg.FigureCanvasTkAgg(self.fig, master=self.parent)
         self.subplot.grid(True)
