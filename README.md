@@ -1,0 +1,2 @@
+# GraphDigitizer
+For digitizing graphs
