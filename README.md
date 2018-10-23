@@ -1,2 +1,3 @@
 # GraphDigitizer
-For digitizing graphs
+For digitizing graphs - Python 3.6
+
