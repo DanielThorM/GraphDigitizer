@@ -91,7 +91,7 @@ class DigitizerGUI(object):
         button_set_x.grid(row=5, column=1, sticky=tk.W + tk.E)
         button_set_y = tk.Button(main_frame_center, text='Set point on Y', command=self.set_y_reference)
         button_set_y.grid(row=6, column=1, sticky=tk.W + tk.E)
-        button_add_points = tk.Button(main_frame_center, text='Add graph points', command=self.add_points)
+        button_add_points = tk.Button(main_frame_center, text='Add graph points', bg='violet', command=self.add_points)
         button_add_points.grid(row=7, column=1, sticky=tk.W + tk.E)
         button_assign_data = tk.Button(main_frame_center, text='Assign data to curve', bg='green',
                                        command=self.assign_to_curve)
@@ -103,6 +103,7 @@ class DigitizerGUI(object):
         #LogAxis
         self.log_axis_x = tk.IntVar()
         self.log_axis_y = tk.IntVar()
+        self.start_in_origo = tk.IntVar()
         cButton_logX = tk.Checkbutton(
             main_frame_center, text="log axis X", variable=self.log_axis_x,
             onvalue=1, offvalue=0)
@@ -112,6 +113,10 @@ class DigitizerGUI(object):
         cButton_logX.grid(row=5, column=2, sticky=tk.W + tk.E)
         cButton_logY.grid(row=6, column=2, sticky=tk.W + tk.E)
 
+        cButton_incl_origo= tk.Checkbutton(
+            main_frame_center, text="Start in 0", variable=self.start_in_origo,
+            onvalue=1, offvalue=0)
+        cButton_incl_origo.grid(row=7, column=2, sticky=tk.W + tk.E)
 
         ############################################################
         #Curve data
@@ -188,12 +193,9 @@ class DigitizerGUI(object):
 
     def assign_to_curve(self):
         x,y = self.transparent_window.axes.interpolate_data(self.transparent_window.points.point_list)
-        if self.log_axis_x == 1:
-            a=1
-        elif self.log_axis_y == 1:
-            a=1
-
-
+        if self.start_in_origo.get() == 1:
+            x = np.insert(x, 0, 0.0)
+            y = np.insert(y, 0, 0.0)
         self.project[self.current_index].set_xy(x,y)
         self.print_data_data()
 
