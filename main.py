@@ -2,13 +2,12 @@
 import tkinter as tk
 import tkinter.filedialog
 import dill
-import transparentWindow
+import DigitizingWindow
 import numpy as np
 
 
-#Now on github
 
-class curve(object):
+class Curve(object):
     def __init__(self):
         self.ID = 'None'
         self.comment = ''
@@ -25,10 +24,10 @@ class curve(object):
         self.x=x
         self.y=y
 
-class digitizerGUI(object):
+class DigitizerGUI(object):
     def __init__(self, master):
         self.project=[]
-        self.project.append(curve())
+        self.project.append(Curve())
         self.current_index=0
 
         self.master=master
@@ -48,31 +47,31 @@ class digitizerGUI(object):
 
         ###################################################################
         ###### Frames #######################################
-        mainFrame = tk.Frame(master)
-        mainFrame.pack(side=tk.TOP, fill=tk.X)
+        main_frame = tk.Frame(master)
+        main_frame.pack(side=tk.TOP, fill=tk.X)
 
-        bottomFrame=tk.Frame(master)
-        bottomFrame.pack(side=tk.TOP, fill=tk.X)
+        bottom_frame=tk.Frame(master)
+        bottom_frame.pack(side=tk.TOP, fill=tk.X)
 
 
-        mainFrameTop=tk.Frame(mainFrame)
-        mainFrameTop.pack(side=tk.TOP, fill=tk.X, anchor=tk.E)
-        mainFrameLeft = tk.Frame(mainFrame)
-        mainFrameLeft.pack(side=tk.LEFT, anchor=tk.N + tk.E)
-        mainFrameCenter = tk.Frame(mainFrame)
-        mainFrameCenter.pack(side=tk.LEFT, anchor=tk.N, expand=tk.NO)
-        mainFrameRight = tk.Frame(mainFrame)
-        mainFrameRight.pack(side=tk.LEFT, anchor=tk.N + tk.W , expand=tk.YES)
+        main_frame_top=tk.Frame(main_frame)
+        main_frame_top.pack(side=tk.TOP, fill=tk.X, anchor=tk.E)
+        main_frame_left = tk.Frame(main_frame)
+        main_frame_left.pack(side=tk.LEFT, anchor=tk.N + tk.E)
+        main_frame_center = tk.Frame(main_frame)
+        main_frame_center.pack(side=tk.LEFT, anchor=tk.N, expand=tk.NO)
+        main_frame_right = tk.Frame(main_frame)
+        main_frame_right.pack(side=tk.LEFT, anchor=tk.N + tk.W , expand=tk.YES)
 
         ##################################################
         #Top
 
-        tk.Label(mainFrameLeft, text='List of curves').pack()
-        self.curveList=tk.Listbox(mainFrameLeft, exportselection=False)
-        self.curveList.pack()
+        tk.Label(main_frame_left, text='List of curves').pack()
+        self.curve_list=tk.Listbox(main_frame_left, exportselection=False)
+        self.curve_list.pack()
         self.print_curve_list()
         #self.listVar.trace('w', self.print_article_list)
-        self.curveList.bind('<<ListboxSelect>>', self.selected_curve)
+        self.curve_list.bind('<<ListboxSelect>>', self.selected_curve)
 
 
 
@@ -80,21 +79,21 @@ class digitizerGUI(object):
 
         #################################################################
         #Digitizer
-        button_add_from_graph = tk.Button(mainFrameCenter, text='New overlay', bg='Yellow', command=self.open_new_transparent_window)
+        button_add_from_graph = tk.Button(main_frame_center, text='New overlay', bg='Yellow', command=self.open_new_transparent_window)
         button_add_from_graph.grid(row=1, column=1, sticky=tk.W + tk.E)
-        button_add_from_graph = tk.Button(mainFrameCenter, text='New curve', command=self.new_curve)
+        button_add_from_graph = tk.Button(main_frame_center, text='New curve', command=self.new_curve)
         button_add_from_graph.grid(row=2, column=1, sticky=tk.W + tk.E)
-        button_add_from_graph = tk.Button(mainFrameCenter, text='Clear points', command=self.clear_points)
+        button_add_from_graph = tk.Button(main_frame_center, text='Clear points', command=self.clear_points)
         button_add_from_graph.grid(row=3, column=1, sticky=tk.W + tk.E)
-        button_set_origo = tk.Button(mainFrameCenter, text='Set origo', command=self.set_origo)
+        button_set_origo = tk.Button(main_frame_center, text='Set origo', command=self.set_origo)
         button_set_origo.grid(row=4, column=1, sticky=tk.W + tk.E)
-        button_set_x = tk.Button(mainFrameCenter, text='Set point on X', command=self.set_x_point)
+        button_set_x = tk.Button(main_frame_center, text='Set point on X', command=self.set_x_reference)
         button_set_x.grid(row=5, column=1, sticky=tk.W + tk.E)
-        button_set_y = tk.Button(mainFrameCenter, text='Set point on Y', command=self.set_y_point)
+        button_set_y = tk.Button(main_frame_center, text='Set point on Y', command=self.set_y_reference)
         button_set_y.grid(row=6, column=1, sticky=tk.W + tk.E)
-        button_add_points = tk.Button(mainFrameCenter, text='Add graph points', command=self.set_points)
+        button_add_points = tk.Button(main_frame_center, text='Add graph points', command=self.add_points)
         button_add_points.grid(row=7, column=1, sticky=tk.W + tk.E)
-        button_assign_data = tk.Button(mainFrameCenter, text='Assign data to curve', bg='green',
+        button_assign_data = tk.Button(main_frame_center, text='Assign data to curve', bg='green',
                                        command=self.assign_to_curve)
         button_assign_data.grid(row=8, column=1, sticky=tk.W + tk.E)
 
@@ -102,13 +101,13 @@ class digitizerGUI(object):
 
         ###################################
         #LogAxis
-        self.logAxisX = tk.IntVar()
-        self.logAxisY = tk.IntVar()
+        self.log_axis_x = tk.IntVar()
+        self.log_axis_y = tk.IntVar()
         cButton_logX = tk.Checkbutton(
-            mainFrameCenter, text="log axis X", variable=self.logAxisX,
+            main_frame_center, text="log axis X", variable=self.log_axis_x,
             onvalue=1, offvalue=0)
         cButton_logY = tk.Checkbutton(
-            mainFrameCenter, text="log axis Y", variable=self.logAxisY,
+            main_frame_center, text="log axis Y", variable=self.log_axis_y,
             onvalue=1, offvalue=0)
         cButton_logX.grid(row=5, column=2, sticky=tk.W + tk.E)
         cButton_logY.grid(row=6, column=2, sticky=tk.W + tk.E)
@@ -116,27 +115,27 @@ class digitizerGUI(object):
 
         ############################################################
         #Curve data
-        tk.Label(mainFrameRight, text = 'Curve data', bg = 'gray').grid(row=0, columnspan=2, sticky= tk.E + tk.W)
+        tk.Label(main_frame_right, text = 'Curve data', bg = 'gray').grid(row=0, columnspan=2, sticky= tk.E + tk.W)
 
-        mainFrameRight.columnconfigure(1, weight=5)
-        mainFrameRight.columnconfigure(1, weight=1)
+        main_frame_right.columnconfigure(1, weight=5)
+        main_frame_right.columnconfigure(1, weight=1)
 
-        tk.Label(mainFrameRight, text = 'ID').grid(row=1, sticky=tk.W)
-        self.entry_ID=tk.Entry(mainFrameRight)
+        tk.Label(main_frame_right, text = 'ID').grid(row=1, sticky=tk.W)
+        self.entry_ID=tk.Entry(main_frame_right)
         self.entry_ID.grid(row=1, column=1, sticky = tk.E+tk.W)
         self.entry_ID.bind('<Return>', self.update_ID)
-        tk.Label(mainFrameRight, text='Comment').grid(row=2, sticky=tk.W)
-        self.entry_comment = tk.Entry(mainFrameRight)
+        tk.Label(main_frame_right, text='Comment').grid(row=2, sticky=tk.W)
+        self.entry_comment = tk.Entry(main_frame_right)
         self.entry_comment.grid(row=2, column=1, sticky = tk.E+tk.W)
         self.entry_comment.bind('<Return>', self.update_comment)
 
 
         ####################################################
         #Bottom
-        tk.Label(bottomFrame, text='Data, [x,...][y, ...]').pack(anchor=tk.N+tk.W)
-        self.dataText = tk.Text(bottomFrame, exportselection=False)
+        tk.Label(bottom_frame, text='Data, [x,...][y, ...]').pack(anchor=tk.N+tk.W)
+        self.dataText = tk.Text(bottom_frame, exportselection=False)
         self.dataText.pack(side=tk.LEFT, anchor=tk.N)
-        scrollbar=tk.Scrollbar(bottomFrame)
+        scrollbar=tk.Scrollbar(bottom_frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.dataText.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.dataText.yview)
@@ -156,42 +155,42 @@ class digitizerGUI(object):
         self.slave.attributes('-alpha', 0.4)
         self.slave.geometry('600x600')
         self.slave.wm_attributes("-topmost", 1)
-        self.transparent_window = transparentWindow.draw_on_window(self.slave)
+        self.transparent_window = DigitizingWindow.DrawOnWindow(self.slave)
 
     def set_origo(self):
         try:
-            self.transparent_window.axes.promt_origo()
+            self.transparent_window.axes.promt_origo(self.log_axis_x.get(), self.log_axis_y.get())
         except:
-            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
-            self.transparent_window.axes.promt_origo(self.logAxisX.get(), self.logAxisY.get())
-            print (str(self.logAxisX.get()))
+            self.transparent_window.axes = DigitizingWindow.DefineAxes(self.transparent_window)
+            self.transparent_window.axes.promt_origo(self.log_axis_x.get(), self.log_axis_y.get())
+            print (str(self.log_axis_x.get()))
 
-    def set_x_point(self):
+    def set_x_reference(self):
         try:
             self.transparent_window.axes.promt_x_axis()
         except:
-            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
+            self.transparent_window.axes = DigitizingWindow.DefineAxes(self.transparent_window)
             self.transparent_window.axes.promt_x_axis()
 
-    def set_y_point(self):
+    def set_y_reference(self):
         try:
             self.transparent_window.axes.promt_y_axis()
         except:
-            self.transparent_window.axes = transparentWindow.define_axes(self.transparent_window)
+            self.transparent_window.axes = DigitizingWindow.DefineAxes(self.transparent_window)
             self.transparent_window.axes.promt_y_axis()
 
-    def set_points(self):
+    def add_points(self):
         try:
             self.transparent_window.points.promt_points()
         except:
-            self.transparent_window.points = transparentWindow.points(self.transparent_window)
+            self.transparent_window.points = DigitizingWindow.Point(self.transparent_window)
             self.transparent_window.points.promt_points()
 
     def assign_to_curve(self):
         x,y = self.transparent_window.axes.interpolate_data(self.transparent_window.points.point_list)
-        if self.logAxisX == 1:
+        if self.log_axis_x == 1:
             a=1
-        elif self.logAxisY == 1:
+        elif self.log_axis_y == 1:
             a=1
 
 
@@ -203,14 +202,14 @@ class digitizerGUI(object):
         try:
             self.transparent_window.points.clear_points()
         except:
-            self.transparent_window.points = transparentWindow.points(self.transparent_window)
+            self.transparent_window.points = DigitizingWindow.Point(self.transparent_window)
             self.transparent_window.points.clear_points()
 
     def select_regression_area(self):
         try:
             self.transparent_window.draw_rectangle.calculate_line()
         except:
-            self.transparent_window.draw_rectangle = transparentWindow.draw_rectangle(self.transparent_window)
+            self.transparent_window.draw_rectangle = DigitizingWindow.DrawRectangle(self.transparent_window)
             self.transparent_window.draw_rectangle.calculate_line()
 
     def calculate_slope(self):
@@ -230,11 +229,11 @@ class digitizerGUI(object):
     ##################################################################
 
     def print_curve_list(self):
-        self.curveList.delete(0, tk.END)
+        self.curve_list.delete(0, tk.END)
         for item in self.project:
-            self.curveList.insert(tk.END, item.ID)
-        self.curveList.select_set(self.current_index)  # This only sets focus on the first item.
-        self.curveList.event_generate("<<ListboxSelect>>")
+            self.curve_list.insert(tk.END, item.ID)
+        self.curve_list.select_set(self.current_index)  # This only sets focus on the first item.
+        self.curve_list.event_generate("<<ListboxSelect>>")
 
     def print_curve_data(self):
         self.entry_ID.delete(0, tk.END)
@@ -244,7 +243,7 @@ class digitizerGUI(object):
 
     def print_data_data(self):
         self.dataText.delete(1.0, tk.END)
-        self.dataText.insert(1.0, repr(np.array([self.project[self.current_index].x, self.project[self.current_index].y])))
+        self.dataText.insert(1.0, 'np.'+repr(np.array([self.project[self.current_index].x, self.project[self.current_index].y])))
 
 
     def update_ID(self, event):
@@ -252,7 +251,6 @@ class digitizerGUI(object):
         self.print_curve_list()
 
     def update_comment(self, event):
-        #print ('LOLL')
         self.project[self.current_index].set_comment(str(event.widget.get()))
         print (self.project[self.current_index].comment)
 
@@ -264,33 +262,25 @@ class digitizerGUI(object):
 
 
     def new_curve(self):
-        self.project.append(curve())
+        self.project.append(Curve())
         self.print_curve_list()
 
     #### File dropdown################################################
     def new_project(self):
 
         self.project = []
-        self.project.append(curve())
+        self.project.append(Curve())
         self.print_curve_list()
         self.saveAs_fileName=None
         #elf.listVar = tk.StringVar()
 
     def saveAs_project(self):
-        # try:
-        #     self.delete(self.transparent_window)
-        # except:
-        #     pass
         self.saveAs_fileName = tk.filedialog.asksaveasfilename(defaultextension=".pkl")
         with open(self.saveAs_fileName, 'wb') as output:
             dill.dump(self.project, output)
             print ('Saved as {}'.format(self.saveAs_fileName))
 
     def save_project(self):
-        # try:
-        #     self.delete(self.transparent_window)
-        # except:
-        #     pass
         try:
             with open(self.saveAs_fileName, 'wb') as output:
                 dill.dump(self.project, output)
@@ -318,5 +308,5 @@ class digitizerGUI(object):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    my_gui = digitizerGUI(root)
+    my_gui = DigitizerGUI(root)
     root.mainloop()

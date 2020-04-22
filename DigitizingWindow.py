@@ -12,7 +12,7 @@ import matplotlib.backends.backend_tkagg as tkagg
 import re
 
 
-class draw_on_window(tk.Frame):
+class DrawOnWindow(tk.Frame):
 
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
@@ -51,8 +51,7 @@ class draw_on_window(tk.Frame):
         self.canvas.move(self.cursor_vert_box, dx, 0)
         self.canvas.move(self.cursor_hor_box, 0, dy)
 
-
-class points:
+class Point():
     def __init__(self, window):
         self.canvas = window.canvas
 
@@ -88,28 +87,20 @@ class points:
             self.canvas.delete(self.canvas.find_withtag('v{}'.format(i+1)))
             self.canvas.delete(self.canvas.find_withtag('h{}'.format(i+1)))
         self.point_list=[]
-class define_axes:
+
+class DefineAxes():
     def __init__(self, window):
         self.canvas = window.canvas
 
-    def promt_origo(self, logAxisX, logAxisY):
+    def promt_origo(self, log_axis_x, log_axis_y):
         try:
             self.canvas.delete('origo_dot')
         except:
             pass
         self.canvas.bind('<Button-1>', lambda event: self.on_l_click(event, 'origo'))
         self.origo_value=[0,0]
-        self.logAxisX=logAxisX
-        self.logAxisY=logAxisY
-
-    # def set_origo(self, event):
-    #     self.origo_loc = [event.x, event.y]
-    #     try:
-    #         self.canvas.delete(self.origo_dot)
-    #     except:
-    #         pass
-    #     self.origo_dot = self.dot(self.origo_loc, 'red')
-
+        self.log_axis_x=log_axis_x
+        self.log_axis_y=log_axis_y
 
         #print[event.x, event.y]
 
@@ -140,10 +131,10 @@ class define_axes:
                                                    parent=self.canvas)))
 
         else:
-            if self.logAxisX == 1:
+            if self.log_axis_x == 1:
                 self.origo_value[0] = float(tk.simpledialog.askstring('Value', 'enter X value of origo',
                                                                       parent=self.canvas))
-            if self.logAxisY == 1:
+            if self.log_axis_y == 1:
                 self.origo_value[1] = float(tk.simpledialog.askstring('Value', 'enter Y value of origo',
                                                                       parent=self.canvas))
         #print([event.x, event.y])
@@ -166,11 +157,11 @@ class define_axes:
         x = values[0,0]
         y = values[0,1]
 
-        if self.logAxisX == 1:
+        if self.log_axis_x == 1:
             decades=int(np.log10(self.x_axis_value)-np.log10(self.origo_value[0]))
             x=10**(x*decades/ self.x_axis_value)
 
-        if self.logAxisY == 1:
+        if self.log_axis_y == 1:
             decades = int(np.log10(self.y_axis_value) - np.log10(self.origo_value[1]))
             y = 10 ** (y * decades / self.y_axis_value)
 
@@ -182,8 +173,7 @@ class define_axes:
         y, x = TempList[:, 0], TempList[:, 1]
         return y, x
 
-
-class draw_rectangle:
+class DrawRectangle():
     def __init__(self, window):
         self.canvas = window.canvas
         self.points = np.array(window.points.points)
@@ -242,8 +232,7 @@ class draw_rectangle:
         self.autodraw()
         # print 'Failed to calculate youngs'
 
-
-class show_plot(tk.Frame):
+class ShowPlot(tk.Frame):
     def __init__(self, parent, data):
         tk.Frame.__init__(self, parent)
         self.parent = parent
@@ -260,10 +249,10 @@ class show_plot(tk.Frame):
         self.subplot = self.fig.add_subplot(111)
         self.subplot.set_ylabel('Y')
         self.subplot.set_xlabel('X')
-        self.subplot.plot(self.data[1], self.data[0])
+        self.subplot.plot(self.data[1], self.data[0], color='k')
+        self.subplot.scatter(self.data[1], self.data[0], color = 'k')
         self.canvas = tkagg.FigureCanvasTkAgg(self.fig, master=self.parent)
         self.subplot.grid(True)
-
         # self.ax.set_xticklabels([])
         # self.ax.set_yticklabels([])
         self.canvas.get_tk_widget().pack()
@@ -273,6 +262,6 @@ class show_plot(tk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
 
-    root_thing = show_plot(root, [[0, 1], [0, 2]])
+    root_thing = ShowPlot(root, [[0, 1], [0, 2]])
 
     root.mainloop()
